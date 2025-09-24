@@ -1,0 +1,91 @@
+// index.js
+const http = require('http');
+const { randomInt } = require('crypto');
+const port = 3000;
+
+// Diccionario de ejemplo (cámbialo por el tuyo o carga desde un archivo)
+const DICTIONARY = [
+  'sol', 'luna', 'mar', 'tierra', 'fuego', 'nube', 'rio', 'viento', 'roca', 'bosque',
+  'rojo', 'verde', 'azul', 'negro', 'blanco', 'oro', 'plata', 'bronce', 'claro', 'oscuro',
+  'gato', 'perro', 'zorro', 'delfin', 'tigre', 'panda', 'loro', 'águila', 'koala', 'ballena',
+  'cafe', 'te', 'pan', 'queso', 'miel', 'sal', 'azucar', 'limon', 'nuez', 'maiz',
+  'laser', 'pixel', 'nube2', 'byte', 'bit', 'token', 'server', 'client', 'router', 'cache'
+];
+
+// Utilidad: elige n palabras aleatorias del diccionario
+function pickWords(n, dict = DICTIONARY) {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const idx = randomInt(0, dict.length);
+    out.push(dict[idx]);
+  }
+  return out;
+}
+
+// Render de la página HTML
+function renderPage(password, x) {
+  return `<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Generador de contraseña (${x} palabras)</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 40px; }
+    .pw { font-size: 1.6rem; font-weight: 700; letter-spacing: .5px; padding: .6rem 1rem; border: 1px solid #ddd; border-radius: 8px; display: inline-block; }
+    .hint { color: #555; margin-top: .5rem; }
+    .links a { margin-right: .75rem; }
+  </style>
+</head>
+<body>
+  <h1>Contraseña aleatoria</h1>
+  <p class="pw">${password}</p>
+  <p class="hint">Cambiar número de palabras con el parámetro <code>?x=</code>.</p>
+  <div class="links">
+    <strong>Ejemplos:</strong>
+    <a href="/?x=3">x=3</a>
+    <a href="/?x=4">x=4</a>
+    <a href="/?x=6">x=6</a>
+  </div>
+</body>
+</html>`;
+}
+
+const server = http.createServer((req, res) => {
+  // Parseo de la URL con base para poder usar URLSearchParams
+  const url = new URL(req.url, `http://${req.headers.host}`);
+
+  // Solo la ruta principal; podrías añadir 404 para otras rutas si quieres
+  if (url.pathname !== '/') {
+    res.statusCode = 404;
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    return res.end('404 No encontrado');
+  }
+
+  // Lee x desde la query (?x=5). Valor por defecto 4.
+  let x = parseInt(url.searchParams.get('x') ?? '4', 10);
+
+  // Validaciones y límites razonables
+  if (Number.isNaN(x) || x <= 0) x = 4;                 // por defecto
+  if (x > 20) x = 20;                                   // evita x enormes
+  if (x > DICTIONARY.length) x = DICTIONARY.length;     // no más que el diccionario
+
+  // Genera la contraseña uniendo palabras con guiones (puedes usar espacios u otro separador)
+  const words = pickWords(x);
+  const password = words.join('-');
+
+  // Respuesta HTML
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.end(renderPage(password, x));
+});
+
+server.listen(port, () => {
+  console.log(`server is running on http://localhost:${port}`);
+});  --// reemplaza : // reemplaza el DICTIONARY de arriba por esto:
+const fs = require('fs');
+const DICTIONARY = fs.readFileSync('./diccionario.txt', 'utf8')
+  .split(/\r?\n/)
+  .map(w => w.trim())
+  .filter(Boolean);
+
