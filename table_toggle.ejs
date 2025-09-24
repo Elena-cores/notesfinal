@@ -1,0 +1,31 @@
+<%- include("header", {}) %>
+<h1><%= title %></h1>
+
+<button onclick="mostrarMensaje()">Press</button>
+<div id="mensaje" style="display: none; margin-top: 10px; padding: 10px; background-color: #e0f7fa; border-radius: 5px;">
+    ¡Ten un buen día!
+</div>
+
+<table border="1">
+  <tr>
+    <th>Username</th>
+  </tr>
+  <% users.forEach(function(user) { %>
+    <tr>
+      <td><%= user.username %></td>
+    </tr>
+  <% }) %>
+</table>
+
+<script>
+function mostrarMensaje() {
+    const mensaje = document.getElementById('mensaje');
+    if (mensaje.style.display === 'none') {
+        mensaje.style.display = 'block';
+    } else {
+        mensaje.style.display = 'none';
+    }
+}
+</script>
+
+<%- include("footer", {}) %>
