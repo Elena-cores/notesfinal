@@ -1,3 +1,207 @@
+Cada etapa (stage) es un objeto que empieza con un operador, por ejemplo:
+
+
+$match → filtrar (como un WHERE en SQL).
+
+
+$group → agrupar y calcular agregados (como GROUP BY).
+
+
+$project → seleccionar campos y transformarlos (como SELECT columna AS ...).
+
+
+$sort → ordenar.
+
+
+$limit → limitar resultados.
+
+📊 Ejemplo práctico
+
+
+Supongamos que tienes una colección ventas con documentos así
+
+{ "producto": "camiseta", "precio": 20, "cantidad": 2, "tienda": "Madrid" }
+{ "producto": "camiseta", "precio": 20, "cantidad": 1, "tienda": "Barcelona" }
+{ "producto": "pantalón", "precio": 40, "cantidad": 1, "tienda": "Madrid" }
+
+
+
+Ejemplo de aggregate
+
+
+Queremos: total vendido por producto.
+
+db.ventas.aggregate([
+  {
+    $group: {
+      _id: "$producto",                 // Agrupamos por producto
+      totalVendido: { $sum: { $multiply: ["$precio", "$cantidad"] } }, // suma de precio*cantidad
+      totalUnidades: { $sum: "$cantidad" } // suma de unidades
+    }
+  }
+])
+
+
+
+Resultado esperado
+
+
+
+[
+  { "_id": "camiseta", "totalVendido": 60, "totalUnidades": 3 },
+  { "_id": "pantalón", "totalVendido": 40, "totalUnidades": 1 }
+]
+
+
+🔗 Ejemplo con más etapas
+
+
+Si ahora queremos solo productos con más de 50€ en ventas, y ordenados de mayor a menor:
+
+
+
+db.ventas.aggregate([
+  {
+    $group: {
+      _id: "$producto",
+      totalVendido: { $sum: { $multiply: ["$precio", "$cantidad"] } }
+    }
+  },
+  { $match: { totalVendido: { $gt: 50 } } }, // filtrar
+  { $sort: { totalVendido: -1 } }            // ordenar descendente
+])
+
+
+
+aggregate = lista de etapas (pipeline).
+
+
+
+
+
+
+Supongamos que la colección zip guarda documentos de códigos postales en EE.UU. (es un dataset de ejemplo que suele venir con MongoDB), con una estructura como esta:
+
+
+
+{
+  "_id": "10001",
+  "city": "NEW YORK",
+  "state": "NY",
+  "pop": 21102
+}
+
+
+
+Aquí:
+
+
+
+_id = código postal
+
+city = ciudad
+
+
+state = estado
+
+
+pop = población de ese código postal
+
+
+
+🔹 Ejemplo 1: población total por estado
+
+
+
+db.zip.aggregate([
+  {
+    $group: {
+      _id: "$state",         // Agrupamos por estado
+      totalPoblacion: { $sum: "$pop" }, // sumamos la población de todos los códigos postales
+      numCiudades: { $sum: 1 }          // contamos cuántos ZIP hay en ese estado
+    }
+  }
+])
+
+
+
+📌 Esto te devuelve algo así:
+
+
+
+{ "_id": "NY", "totalPoblacion": 17990402, "numCiudades": 1590 }
+{ "_id": "CA", "totalPoblacion": 29754890, "numCiudades": 1523 }
+
+
+
+
+🔹 Ejemplo 2: estados con más de 10 millones de habitantes
+
+
+
+db.zip.aggregate([
+  {
+    $group: {
+      _id: "$state",
+      totalPoblacion: { $sum: "$pop" }
+    }
+  },
+  { $match: { totalPoblacion: { $gt: 10000000 } } }, // solo estados con >10M habitantes
+  { $sort: { totalPoblacion: -1 } } // ordenamos de mayor a menor
+])
+
+
+
+Resultado esperado:
+
+
+
+{ "_id": "CA", "totalPoblacion": 29754890 }
+{ "_id": "NY", "totalPoblacion": 17990402 }
+
+
+
+
+🔹 Ejemplo 3: población media por ciudad dentro de cada estado
+
+
+
+db.zip.aggregate([
+  {
+    $group: {
+      _id: { state: "$state", city: "$city" }, // agrupamos por estado + ciudad
+      poblacionCiudad: { $sum: "$pop" }        // sumamos población de todos sus ZIP
+    }
+  },
+  {
+    $group: {
+      _id: "$_id.state",                        // reagrupamos por estado
+      poblacionMediaCiudades: { $avg: "$poblacionCiudad" } // sacamos la media
+    }
+  },
+  { $sort: { poblacionMediaCiudades: -1 } }
+])
+
+
+
+Esto te da, por ejemplo:
+
+
+
+{ "_id": "CA", "poblacionMediaCiudades": 85000 }
+{ "_id": "TX", "poblacionMediaCiudades": 62000 }
+
+
+
+
+
+
+
+
+
+
+
+
 // index.js
 const http = require('http');
 const { randomInt } = require('crypto');
