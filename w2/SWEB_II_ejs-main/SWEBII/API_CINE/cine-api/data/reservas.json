@@ -1,0 +1,11 @@
+[
+    {
+        "id": 555,
+        "sesion_id": 101,
+        "cliente": {
+            "nombre": "Juan Pérez",
+            "email": "juan.perez@email.com"
+        },
+        "butacas": [12, 13, 14]
+    }
+]

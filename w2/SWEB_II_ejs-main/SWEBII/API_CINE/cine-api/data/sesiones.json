@@ -1,0 +1,9 @@
+[
+    {
+        "id": 101,
+        "pelicula": "Dune: Parte Dos",
+        "hora": "17:00",
+        "sala": 5,
+        "butacas_disponibles": 50
+    }
+]

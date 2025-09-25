@@ -1,0 +1,148 @@
+openapi: 3.0.0
+info:
+  title: API de Cine
+  description: API REST para gestionar la cartelera, películas, sesiones y reservas de un cine.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api
+    description: Servidor local
+
+paths:
+  /peliculas:
+    get:
+      summary: Obtiene la lista de películas disponibles
+      responses:
+        '200':
+          description: Lista de películas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pelicula'
+  /peliculas/{id}:
+    get:
+      summary: Obtiene los detalles de una película por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Información de la película
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pelicula'
+        '404':
+          description: Película no encontrada
+  /sesiones:
+    get:
+      summary: Obtiene la lista de sesiones disponibles
+      responses:
+        '200':
+          description: Lista de sesiones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sesion'
+  /salas:
+    get:
+      summary: Obtiene la lista de salas disponibles
+      responses:
+        '200':
+          description: Lista de salas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sala'
+  /reservas:
+    get:
+      summary: Obtiene la lista de reservas realizadas
+      responses:
+        '200':
+          description: Lista de reservas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reserva'
+    post:
+      summary: Realiza una nueva reserva
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reserva'
+      responses:
+        '201':
+          description: Reserva creada exitosamente
+        '400':
+          description: Error en los datos enviados
+
+components:
+  schemas:
+    Pelicula:
+      type: object
+      properties:
+        id:
+          type: integer
+        titulo:
+          type: string
+        duracion:
+          type: integer
+          description: Duración en minutos
+        clasificacion:
+          type: string
+        genero:
+          type: array
+          items:
+            type: string
+    Sesion:
+      type: object
+      properties:
+        id:
+          type: integer
+        pelicula:
+          type: string
+        hora:
+          type: string
+        sala:
+          type: integer
+        butacas_disponibles:
+          type: integer
+    Sala:
+      type: object
+      properties:
+        id:
+          type: integer
+        capacidad:
+          type: integer
+        butacas_disponibles:
+          type: integer
+    Reserva:
+      type: object
+      properties:
+        id:
+          type: integer
+        sesion_id:
+          type: integer
+        cliente:
+          type: object
+          properties:
+            nombre:
+              type: string
+            email:
+              type: string
+        butacas:
+          type: array
+          items:
+            type: integer

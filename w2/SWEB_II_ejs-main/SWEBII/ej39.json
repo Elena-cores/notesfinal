@@ -1,0 +1,46 @@
+//JSON de película
+
+{
+  "title": "Inception",
+  "year": 2010,
+  "director": "Christopher Nolan",
+  "genre": ["Science Fiction", "Action"],
+  "rating": 8.8,
+  "actors": [
+    {
+      "name": "Leonardo DiCaprio",
+      "role": "Dom Cobb"
+    },
+    {
+      "name": "Joseph Gordon-Levitt",
+      "role": "Arthur"
+    }
+  ]
+}
+// JSON Schema para validar el JSON
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "title": { "type": "string" },
+    "year": { "type": "integer", "minimum": 1888 },
+    "director": { "type": "string" },
+    "genre": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "rating": { "type": "number", "minimum": 0, "maximum": 10 },
+    "actors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "role": { "type": "string" }
+        },
+        "required": ["name", "role"]
+      }
+    }
+  },
+  "required": ["title", "year", "director", "genre", "rating", "actors"]
+}

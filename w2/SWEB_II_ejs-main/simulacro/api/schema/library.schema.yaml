@@ -1,0 +1,204 @@
+openapi: 3.0.3
+info:
+  description: |-
+    My Library documentation
+  version: 1.0.0
+  title: Library
+tags:
+  - name: book
+    description: Everything about your Books
+paths:
+    /book:
+      get:
+       summary: GET all books
+       description: GET all books
+       parameters:
+            - name: pages
+              in: query
+              description: Filter books by exact number of pages
+              required: false
+              schema:
+                type: integer
+                example: 472
+       responses:
+            "200":
+              description: "OK"
+              content:
+                application/json:
+                  schema: 
+                    $ref: '#/components/schemas/Books'
+
+    post:
+      tags:
+        - book
+      summary: Add a new book to the library
+      description: Add a new book to the library
+      operationId: addBook
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '405':
+          description: Invalid input
+      requestBody:
+        description: Add a new book to the library
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+    /book/{bookId}:
+      parameters:
+      - $ref: '#/components/parameters/ID'
+    get:
+      tags:
+        - book
+      summary: Find book by ID
+      description: Returns a single book
+      operationId: getBookById
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Book'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Book not found
+    delete:
+      tags:
+        - book
+      summary: Deletes a book
+      description: ''
+      operationId: deleteBook
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Invalid book ID
+
+
+components:
+  parameters:
+    ID:
+      description: Book ID
+      name: bookId
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/ID"
+  
+  
+  
+  schemas:
+    Books:
+      type: object
+      properties:
+        results:
+          $ref: "#/components/schemas/BooksArray"
+        next:
+          type: string
+          description: Book next ID for pagination search
+        link:
+          type: string
+          description: "Enlace directo al recurso individual de este libro"
+      required:
+        - results
+        - next
+        - link
+    BooksArray:
+      type: array
+      items:
+        $ref: "#/components/schemas/BookMin"
+    BookMin:
+      type: object
+      properties:
+        _id:
+          $ref: "#/components/schemas/ID"
+        title:
+          type: string
+          description: Book title
+        author:
+          type: string
+          description: Book author
+        link:  # 3) NUEVO CAMPO HATEOAS
+          type: string
+          description: "Enlace directo al recurso individual de este libro"
+          example: "localhost:3010/api/v2/book/646332b5b3767c0bcb5d4b3b"
+      required:
+        - _id
+        - title
+        - author
+    Book:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: ID único del libro
+          example: 685bd37d70fa0ef1944310ab
+        isbn:
+          type: string
+          description: ISBN del libro
+          example: "9781593279509"
+        title:
+          type: string
+          description: Título del libro
+          example: "Eloquent JavaScript, Third Edition"
+        subtitle:
+          type: string
+          description: Subtítulo del libro
+          example: "A Modern Introduction to Programming"
+        author:
+          type: string
+          description: Autor del libro
+          example: "Marijn Haverbeke"
+        published:
+          type: string
+          format: date-time
+          description: Fecha de publicación
+          example: "2018-12-04T00:00:00.000Z"
+        publisher:
+          type: string
+          description: Editorial
+          example: "No Starch Press"
+        pages:
+          type: integer
+          description: Número de páginas
+          example: 472
+        description:
+          type: string
+          description: Descripción del libro
+        website:
+          type: string
+          format: uri
+          description: Sitio web oficial del libro
+          example: "http://eloquentjavascript.net/"
+        genres:
+          type: array
+          description: Géneros del libro
+          items:
+            type: string
+            example: "Programación"
+      required:
+        - isbn
+        - title
+        - author
+        - published
+        - publisher
+        - pages
+
+
+    ID:
+      type: string
+      description: Book ID obtained from the database
+      example: 6463448ae7684d03f44af30f
+servers:
+  - url: localhost:3010/api/v2

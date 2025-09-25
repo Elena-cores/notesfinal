@@ -1,0 +1,9 @@
+[
+    {
+        "id": 1,
+        "titulo": "Dune: Parte Dos",
+        "duracion": 165,
+        "clasificacion": "PG-13",
+        "genero": ["Ciencia Ficción", "Acción"]
+    }
+]
